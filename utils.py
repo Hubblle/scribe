@@ -2,7 +2,7 @@ import numpy as np
 import math
 import random
 import os
-import cPickle as pickle
+import _pickle as pickle
 import xml.etree.ElementTree as ET
 
 from utils import *
@@ -182,7 +182,7 @@ class DataLoader():
         x_batch = []
         y_batch = []
         ascii_list = []
-        for i in xrange(self.batch_size):
+        for i in range(self.batch_size):
             data = self.stroke_data[self.idx_perm[self.pointer]]
             idx = random.randint(0, len(data)-self.tsteps-2)
             x_batch.append(np.copy(data[:self.tsteps]))
@@ -208,9 +208,13 @@ def to_one_hot(s, ascii_steps, alphabet):
     if len(seq) >= ascii_steps:
         seq = seq[:ascii_steps]
     else:
-        seq = seq + [0]*(ascii_steps - len(seq))
-    one_hot = np.zeros((ascii_steps,len(alphabet)+1))
-    one_hot[np.arange(ascii_steps),seq] = 1
+     #print(ascii_steps - len(seq))
+        seq = seq + np.multiply([0],(ascii_steps - len(seq)))
+    one_hot = np.zeros((int(ascii_steps),len(alphabet)+1))
+    seq=np.array(seq,dtype=int)
+    seq=np.pad(seq,(0,len(np.arange(ascii_steps))-len(seq)))
+
+    one_hot[np.arange(ascii_steps,dtype=int),seq] = 1
     return one_hot
 
 # abstraction for logging
@@ -221,6 +225,6 @@ class Logger():
 
     def write(self, s, print_it=True):
         if print_it:
-            print s
+            print(s)
         with open(self.logf, 'a') as f:
             f.write(s + "\n")
